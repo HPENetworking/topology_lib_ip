@@ -59,7 +59,7 @@ def configure_interface(enode, portlbl, ipv4, up=None, shell='bash'):
         assert not response
 
 
-def add_route(enode, route, via, shell='bash'):
+def add_route(enode, route, via, shell=None):
     """
     Add a new static route.
 
