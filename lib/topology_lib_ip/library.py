@@ -23,7 +23,7 @@ from __future__ import unicode_literals, absolute_import
 from __future__ import print_function, division
 
 
-def configure_interface(enode, portlbl, ipv4, up=None, shell='bash'):
+def configure_interface(enode, portlbl, ipv4, up=None, shell=None):
     """
     Configure a interface.
 
@@ -40,7 +40,9 @@ def configure_interface(enode, portlbl, ipv4, up=None, shell='bash'):
      the form ``'192.168.20.20/24'``.
     :param up: Bring up or down the interface. If ``None``, take no action.
     :type up: bool or None
-    :param str shell: Shell name to execute commands.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
     """
     assert portlbl
     assert ipv4
@@ -69,7 +71,9 @@ def add_route(enode, route, via, shell=None):
      or ``'default'``.
     :param str via: Via for the route as an IP in the form
      ``'192.168.20.20/24'``.
-    :param str shell: Shell name to execute commands.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
     """
     cmd = 'ip route add {route} via {via}'.format(route=route, via=via)
     response = enode(cmd, shell=shell)
