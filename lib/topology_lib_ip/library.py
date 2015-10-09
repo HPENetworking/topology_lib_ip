@@ -77,5 +77,6 @@ def add_route(enode, route, via, shell=None):
 
 
 __all__ = [
-    'configure_interface'
+    'configure_interface',
+    'add_route'
 ]
