@@ -86,5 +86,12 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
-    ]
+    ],
+
+    # Entry points
+    entry_points={
+        'topology_library_10': [
+            'ip = topology_lib_ip.library'
+        ]
+    }
 )
