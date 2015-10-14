@@ -84,7 +84,7 @@ PING_RE = (
     r'^(?P<transmitted>\d+) packets transmitted, '
     r'(?P<received>\d+) received,'
     r'( \+(?P<errors>\d+) errors,)? '
-    r'(?P<loss>\d+)% packet loss, '
+    r'(?P<loss_pc>\d+)% packet loss, '
     r'time (?P<time_ms>\d+)ms$'
 )
 
@@ -97,6 +97,18 @@ def ping(enode, count, destination):
     :type enode: topology.platforms.base.BaseNode
     :param int count: Number of packets to send.
     :param str destination: The destination host.
+    :rtype: dict
+    :return: The parsed result of the ping command in a dictionary of the form:
+
+     ::
+
+        {
+            'transmitted': 0,
+            'received': 0,
+            'errors': 0,
+            'loss_pc': 0,
+            'time_ms': 0
+        }
     """
     assert count > 0
     assert destination
@@ -110,9 +122,12 @@ def ping(enode, count, destination):
     for line in ping_raw.splitlines():
         m = ping_re.match(line)
         if m:
-            return m.groupdict()
+            return {
+                k: (int(v) if v is not None else 0)
+                for k, v in m.groupdict().items()
+            }
 
-    assert False, 'Could not parse ping result'
+    raise Exception('Could not parse ping result')
 
 
 __all__ = [
