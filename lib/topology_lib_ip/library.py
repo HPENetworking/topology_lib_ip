@@ -80,7 +80,43 @@ def add_route(enode, route, via, shell=None):
     assert not response
 
 
+PING_RE = (
+    r'^(?P<transmitted>\d+) packets transmitted, '
+    r'(?P<received>\d+) received,'
+    r'( \+(?P<errors>\d+) errors,)? '
+    r'(?P<loss>\d+)% packet loss, '
+    r'time (?P<time_ms>\d+)ms$'
+)
+
+
+def ping(enode, count, destination):
+    """
+    Perform a ping and parse the result.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param int count: Number of packets to send.
+    :param str destination: The destination host.
+    """
+    assert count > 0
+    assert destination
+
+    import re
+    ping_re = re.compile(PING_RE)
+
+    ping_raw = enode('ping -c {} {}'.format(count, destination), shell='bash')
+    assert ping_raw
+
+    for line in ping_raw.splitlines():
+        m = ping_re.match(line)
+        if m:
+            return m.groupdict()
+
+    assert False, 'Could not parse ping result'
+
+
 __all__ = [
     'configure_interface',
-    'add_route'
+    'add_route',
+    'ping'
 ]
