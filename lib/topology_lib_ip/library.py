@@ -25,41 +25,39 @@ from __future__ import print_function, division
 from ipaddress import ip_address
 
 
-def configure_interface(enode, portlbl, ipv4, up=None, shell=None):
+def interface(enode, portlbl, addr=None, up=None, shell=None):
     """
     Configure a interface.
 
-    This communication library function allows to:
-
-    #. Set address of given interface.
-    #. Bring up or down the interface, or leave it as it is.
+    All parameters left as ``None`` are ignored and thus no configuration
+    action is taken for that parameter (left "as-is").
 
     :param enode: Engine node to communicate with.
     :type enode: topology.platforms.base.BaseNode
     :param str portlbl: Port label to configure. Port label will be mapped to
      real port automatically.
-    :param str ipv4: IPv4 address and netmask to assign to the interface in
-     the form ``'192.168.20.20/24'``.
-    :param up: Bring up or down the interface. If ``None``, take no action.
-    :type up: bool or None
-    :param shell: Shell name to execute commands. If ``None``, use the Engine
-     Node default shell.
-    :type shell: str or None
+    :param str addr: IPv4 or IPv6 address to add to the interface:
+     - IPv4 address and netmask to assign to the interface in the form
+       ``'192.168.20.20/24'``.
+     - IPv6 address and subnets to assign to the interface in the form
+       ``'2001::1/120'``.
+    :param bool up: Bring up or down the interface.
+    :param str shell: Shell name to execute commands.
+     If ``None``, use the Engine Node default shell.
     """
     assert portlbl
-    assert ipv4
-
     port = enode.ports[portlbl]
 
-    addr_cmd = 'ip addr add {addr} dev {port}'.format(addr=ipv4, port=port)
-    response = enode(addr_cmd, shell=shell)
-    assert not response
+    if addr is not None:
+        cmd = 'ip addr add {addr} dev {port}'.format(addr=addr, port=port)
+        response = enode(cmd, shell=shell)
+        assert not response
 
     if up is not None:
-        up_cmd = 'ip link set dev {port} {state}'.format(
+        cmd = 'ip link set dev {port} {state}'.format(
             port=port, state='up' if up else 'down'
         )
-        response = enode(up_cmd, shell=shell)
+        response = enode(cmd, shell=shell)
         assert not response
 
 
@@ -141,7 +139,7 @@ def ping(enode, count, destination):
 
 
 __all__ = [
-    'configure_interface',
+    'interface',
     'add_route',
     'ping'
 ]
