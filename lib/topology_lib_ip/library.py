@@ -22,6 +22,8 @@ topology_lib_ip communication library implementation.
 from __future__ import unicode_literals, absolute_import
 from __future__ import print_function, division
 
+from ipaddress import ip_address
+
 
 def configure_interface(enode, portlbl, ipv4, up=None, shell=None):
     """
@@ -113,10 +115,18 @@ def ping(enode, count, destination):
     assert count > 0
     assert destination
 
+    addr = ip_address(destination)
+    cmd = 'ping'
+    if addr.version == 6:
+        cmd = 'ping6'
+
     import re
     ping_re = re.compile(PING_RE)
 
-    ping_raw = enode('ping -c {} {}'.format(count, destination), shell='bash')
+    ping_raw = enode(
+        '{} -c {} {}'.format(cmd, count, destination),
+        shell='bash'
+    )
     assert ping_raw
 
     for line in ping_raw.splitlines():
