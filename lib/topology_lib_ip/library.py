@@ -38,9 +38,9 @@ def interface(enode, portlbl, addr=None, up=None, shell=None):
      real port automatically.
     :param str addr: IPv4 or IPv6 address to add to the interface:
      - IPv4 address and netmask to assign to the interface in the form
-       ``'192.168.20.20/24'``.
+     ``'192.168.20.20/24'``.
      - IPv6 address and subnets to assign to the interface in the form
-       ``'2001::1/120'``.
+     ``'2001::1/120'``.
     :param bool up: Bring up or down the interface.
     :param str shell: Shell name to execute commands.
      If ``None``, use the Engine Node default shell.
