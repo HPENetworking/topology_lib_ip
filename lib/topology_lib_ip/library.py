@@ -160,5 +160,6 @@ def ping(enode, count, destination):
 __all__ = [
     'interface',
     'add_route',
+    'add_6_route',
     'ping'
 ]
