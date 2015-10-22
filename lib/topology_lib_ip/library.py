@@ -80,6 +80,25 @@ def add_route(enode, route, via, shell=None):
     assert not response
 
 
+def add_6_route(enode, route, via, shell=None):
+    """
+    Add a new static route for IPv6.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str route: Route to add, an IP in the form ``'2001::0/24'``
+     or ``'default'``.
+    :param str via: Via for the route as an IP in the form
+     ``'2000::2'``.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
+    """
+    cmd = 'ip -6 route add {route} via {via}'.format(route=route, via=via)
+    response = enode(cmd, shell=shell)
+    assert not response
+
+
 PING_RE = (
     r'^(?P<transmitted>\d+) packets transmitted, '
     r'(?P<received>\d+) received,'
