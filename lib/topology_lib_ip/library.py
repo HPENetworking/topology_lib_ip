@@ -68,33 +68,26 @@ def add_route(enode, route, via, shell=None):
     :param enode: Engine node to communicate with.
     :type enode: topology.platforms.base.BaseNode
     :param str route: Route to add, an IP in the form ``'192.168.20.20/24'``
-     or ``'default'``.
+     or ``'2001::0/24'`` or ``'default'``.
     :param str via: Via for the route as an IP in the form
-     ``'192.168.20.20/24'``.
+     ``'192.168.20.20/24'`` or ``'2001::0/24'``.
     :param shell: Shell name to execute commands. If ``None``, use the Engine
      Node default shell.
     :type shell: str or None
     """
-    cmd = 'ip route add {route} via {via}'.format(route=route, via=via)
-    response = enode(cmd, shell=shell)
-    assert not response
 
+    route = ip_address(route)
+    via = ip_address(via)
 
-def add_6_route(enode, route, via, shell=None):
-    """
-    Add a new static route for IPv6.
+    version = ''
 
-    :param enode: Engine node to communicate with.
-    :type enode: topology.platforms.base.BaseNode
-    :param str route: Route to add, an IP in the form ``'2001::0/24'``
-     or ``'default'``.
-    :param str via: Via for the route as an IP in the form
-     ``'2000::2'``.
-    :param shell: Shell name to execute commands. If ``None``, use the Engine
-     Node default shell.
-    :type shell: str or None
-    """
-    cmd = 'ip -6 route add {route} via {via}'.format(route=route, via=via)
+    if route.version == via.version == 6:
+        version = '-6'
+
+    cmd = 'ip {version} route add {route} via {via}'.format(
+        version=version, route=route, via=via
+    )
+
     response = enode(cmd, shell=shell)
     assert not response
 
@@ -160,6 +153,5 @@ def ping(enode, count, destination):
 __all__ = [
     'interface',
     'add_route',
-    'add_6_route',
     'ping'
 ]
