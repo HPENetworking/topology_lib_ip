@@ -79,9 +79,8 @@ def add_route(enode, route, via, shell=None):
     route = ip_address(route)
     via = ip_address(via)
 
-    version = ''
-
-    if route.version == via.version == 6:
+    version = '-4'
+    if route.version == 6 or via.version == 6:
         version = '-6'
 
     cmd = 'ip {version} route add {route} via {via}'.format(
