@@ -22,7 +22,7 @@ topology_lib_ip communication library implementation.
 from __future__ import unicode_literals, absolute_import
 from __future__ import print_function, division
 
-from ipaddress import ip_address
+from ipaddress import ip_address, ip_network
 
 
 def interface(enode, portlbl, addr=None, up=None, shell=None):
@@ -76,7 +76,7 @@ def add_route(enode, route, via, shell=None):
     :type shell: str or None
     """
 
-    route = ip_address(route)
+    route = ip_network(route)
     via = ip_address(via)
 
     version = '-4'
