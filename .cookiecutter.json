@@ -1,11 +1,11 @@
 {
     "author": "Hewlett Packard Enterprise Development LP",
-    "email": "asicapi@hp.com",
-    "repo_url": "https://github-sc-p.corp.hp.com/hpe-networking/topology_lib_ip",
-    "doc_url": "https://github-sc-p.corp.hp.com/hpe-networking/topology_lib_ip",
+    "email": "hpe-networking@lists.hp.com",
+    "repo_url": "https://github.com/HPENetworking/topology_lib_ip",
+    "doc_url": "https://github.com/HPENetworking/topology_lib_ip",
     "project_name": "Linux ip command Communication Library for Topology",
     "repo_name": "topology_lib_ip",
     "short_description": "Linux ip command Communication Library for Topology",
-    "year": "2015",
+    "year": "2015-2016",
     "version": "0.1.0"
 }
