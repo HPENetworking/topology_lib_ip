@@ -104,12 +104,11 @@ def add_route(enode, route, via, shell=None):
      Node default shell.
     :type shell: str or None
     """
-
-    route = ip_network(route)
     via = ip_address(via)
 
     version = '-4'
-    if route.version == 6 or via.version == 6:
+    if (via.version == 6) or \
+            (route != 'default' and ip_network(route).version == 6):
         version = '-6'
 
     cmd = 'ip {version} route add {route} via {via}'.format(
