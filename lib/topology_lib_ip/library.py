@@ -91,66 +91,7 @@ def add_route(enode, route, via, shell=None):
     assert not response
 
 
-PING_RE = (
-    r'^(?P<transmitted>\d+) packets transmitted, '
-    r'(?P<received>\d+) received,'
-    r'( \+(?P<errors>\d+) errors,)? '
-    r'(?P<loss_pc>\d+)% packet loss, '
-    r'time (?P<time_ms>\d+)ms$'
-)
-
-
-def ping(enode, count, destination):
-    """
-    Perform a ping and parse the result.
-
-    :param enode: Engine node to communicate with.
-    :type enode: topology.platforms.base.BaseNode
-    :param int count: Number of packets to send.
-    :param str destination: The destination host.
-    :rtype: dict
-    :return: The parsed result of the ping command in a dictionary of the form:
-
-     ::
-
-        {
-            'transmitted': 0,
-            'received': 0,
-            'errors': 0,
-            'loss_pc': 0,
-            'time_ms': 0
-        }
-    """
-    assert count > 0
-    assert destination
-
-    addr = ip_address(destination)
-    cmd = 'ping'
-    if addr.version == 6:
-        cmd = 'ping6'
-
-    import re
-    ping_re = re.compile(PING_RE)
-
-    ping_raw = enode(
-        '{} -c {} {}'.format(cmd, count, destination),
-        shell='bash'
-    )
-    assert ping_raw
-
-    for line in ping_raw.splitlines():
-        m = ping_re.match(line)
-        if m:
-            return {
-                k: (int(v) if v is not None else 0)
-                for k, v in m.groupdict().items()
-            }
-
-    raise Exception('Could not parse ping result')
-
-
 __all__ = [
     'interface',
-    'add_route',
-    'ping'
+    'add_route'
 ]

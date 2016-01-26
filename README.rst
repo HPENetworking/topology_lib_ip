@@ -1,6 +1,6 @@
-===================================================
-Linux ip command Communication Library for Topology
-===================================================
+=====================================
+ip Communication Library for Topology
+=====================================
 
 Linux ip command Communication Library for Topology
 
@@ -8,7 +8,7 @@ Linux ip command Communication Library for Topology
 Documentation
 =============
 
-    https://github.com/HPENetworking/topology_lib_ip
+    https://github.com/HPENetworking/topology_lib_ip/tree/master/doc
 
 
 License

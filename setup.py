@@ -73,7 +73,7 @@ setup(
         'Linux ip command Communication Library for Topology'
     ),
     long_description=read('README.rst'),
-    url='https://github.com/HPENetworking/topology_lib_ip',
+    url='https://github.com/HPENetworking/topology_lib_ip/tree/master/doc',
     keywords='topology_lib_ip',
 
     classifiers=[

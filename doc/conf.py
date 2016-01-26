@@ -54,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Linux ip command Communication Library for Topology'
+project = 'ip Communication Library for Topology'
 copyright = '2015-2016, Hewlett Packard Enterprise Development LP'
 author = 'Hewlett Packard Enterprise Development LP'
 
@@ -232,7 +232,7 @@ latex_elements = {
 latex_documents = [
     (
         'index', 'topology_lib_ip.tex',
-        'Linux ip command Communication Library for Topology Documentation',
+        'ip Communication Library for Topology Documentation',
         'Hewlett Packard Enterprise Development LP', 'manual'
     ),
 ]
@@ -266,7 +266,7 @@ man_pages = [
     (
         'index',
         'topology_lib_ip',
-        'Linux ip command Communication Library for Topology Documentation',
+        'ip Communication Library for Topology Documentation',
         [author], 1
     ),
 ]
@@ -284,7 +284,7 @@ texinfo_documents = [
     (
         master_doc,
         'topology_lib_ip',
-        'Linux ip command Communication Library for Topology Documentation',
+        'ip Communication Library for Topology Documentation',
         author,
         'topology_lib_ip',
         (
