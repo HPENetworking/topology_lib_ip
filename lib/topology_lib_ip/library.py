@@ -22,7 +22,7 @@ topology_lib_ip communication library implementation.
 from __future__ import unicode_literals, absolute_import
 from __future__ import print_function, division
 
-from ipaddress import ip_address, ip_network
+from ipaddress import ip_address, ip_network, ip_interface
 
 
 def interface(enode, portlbl, addr=None, up=None, shell=None):
@@ -49,6 +49,7 @@ def interface(enode, portlbl, addr=None, up=None, shell=None):
     port = enode.ports[portlbl]
 
     if addr is not None:
+        assert ip_interface(addr)
         cmd = 'ip addr add {addr} dev {port}'.format(addr=addr, port=port)
         response = enode(cmd, shell=shell)
         assert not response
@@ -59,6 +60,34 @@ def interface(enode, portlbl, addr=None, up=None, shell=None):
         )
         response = enode(cmd, shell=shell)
         assert not response
+
+
+def remove_ip(enode, portlbl, addr, shell=None):
+    """
+    Remove an IP address from an interface.
+
+    All parameters left as ``None`` are ignored and thus no configuration
+    action is taken for that parameter (left "as-is").
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str portlbl: Port label to configure. Port label will be mapped to
+     real port automatically.
+    :param str addr: IPv4 or IPv6 address to remove from the interface:
+     - IPv4 address to remove from the interface in the form
+     ``'192.168.20.20'`` or ``'192.168.20.20/24'``.
+     - IPv6 address to remove from the interface in the form
+     ``'2001::1'`` or ``'2001::1/120'``.
+    :param str shell: Shell name to execute commands.
+     If ``None``, use the Engine Node default shell.
+    """
+    assert portlbl
+    assert ip_interface(addr)
+    port = enode.ports[portlbl]
+
+    cmd = 'ip addr del {addr} dev {port}'.format(addr=addr, port=port)
+    response = enode(cmd, shell=shell)
+    assert not response
 
 
 def add_route(enode, route, via, shell=None):
@@ -93,5 +122,6 @@ def add_route(enode, route, via, shell=None):
 
 __all__ = [
     'interface',
+    'remove_ip',
     'add_route'
 ]
