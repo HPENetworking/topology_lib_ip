@@ -119,8 +119,37 @@ def add_route(enode, route, via, shell=None):
     assert not response
 
 
+def del_route(enode, route, via, shell=None):
+    """
+    Delete a new static route.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str route: Route to delete, an IP in the form ``'192.168.20.20/24'``
+     or ``'2001::0/24'`` or ``'default'``.
+    :param str via: Via for the route as an IP in the form
+     ``'192.168.20.20/24'`` or ``'2001::0/24'``.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
+    """
+    via = ip_address(via)
+
+    version = '-4'
+    if (via.version == 6) or \
+            (route != 'default' and ip_network(route).version == 6):
+        version = '-6'
+
+    cmd = 'ip {version} route del {route} via {via}'.format(
+        version=version, route=route, via=via
+    )
+
+    response = enode(cmd, shell=shell)
+    assert not response
+
 __all__ = [
     'interface',
     'remove_ip',
-    'add_route'
+    'add_route',
+    'del_route'
 ]
