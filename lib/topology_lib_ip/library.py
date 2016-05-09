@@ -62,6 +62,53 @@ def interface(enode, portlbl, addr=None, up=None, shell=None):
         assert not response
 
 
+def sub_interface(enode, portlbl, subint, addr=None, up=None, shell=None):
+    """
+    Configure a subinterface.
+
+    All parameters left as ``None`` are ignored and thus no configuration
+    action is taken for that parameter (left "as-is").
+    Sub interfaces can only be configured if the device exists.
+    If you want to enable the sub interface, it will enable the interface
+    as well.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str portlbl: Port label to configure. Port label will be mapped to
+     real port automatically.
+    :param str subint: The suffix of the interface.
+    :param str addr: IPv4 or IPv6 address to add to the interface:
+     - IPv4 address and netmask to assign to the interface in the form
+     ``'192.168.20.20/24'``.
+     - IPv6 address and subnets to assign to the interface in the form
+     ``'2001::1/120'``.
+    :param bool up: Bring up or down the interface.
+    :param str shell: Shell name to execute commands.
+     If ``None``, use the Engine Node default shell.
+    """
+    assert portlbl
+    assert subint
+    port = enode.ports[portlbl]
+
+    if addr is not None:
+        assert ip_interface(addr)
+        cmd = 'ip addr add {addr} dev {port}.{subint}'.format(addr=addr,
+                                                              port=port,
+                                                              subint=subint)
+        response = enode(cmd, shell=shell)
+        assert not response
+
+    if up is not None:
+        if up:
+            interface(enode, portlbl, up=up)
+
+        cmd = 'ip link set dev {port}.{subint} {state}'.format(
+            port=port, subint=subint, state='up' if up else 'down'
+        )
+        response = enode(cmd, shell=shell)
+        assert not response
+
+
 def remove_ip(enode, portlbl, addr, shell=None):
     """
     Remove an IP address from an interface.
@@ -119,8 +166,39 @@ def add_route(enode, route, via, shell=None):
     assert not response
 
 
+def add_link_type_vlan(enode, portlbl, name, vlan_id, shell=None):
+    """
+    Add a new virtual link with the type set to VLAN.
+    Creates a new vlan device {name} on device {portlbl}.
+    Will raise an exception if value is already assigned.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str portlbl: Port label to configure. Port label will be mapped
+     automatically.
+    :param str name: specifies the name of the new
+     virtual device.
+    :param str vlan_id: specifies the VLAN identifier.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
+    """
+    if name in enode.ports:
+        raise ValueError("Key {key} already exists".format(key=name))
+
+    enode.ports[name] = portlbl
+
+    cmd = 'ip link add link {dev} name {name} type vlan id {vlan_id}'.format(
+        dev=portlbl, name=name, vlan_id=vlan_id)
+
+    response = enode(cmd, shell=shell)
+    assert not response
+
+
 __all__ = [
     'interface',
     'remove_ip',
-    'add_route'
+    'add_route',
+    'add_link_type_vlan',
+    'sub_interface'
 ]
