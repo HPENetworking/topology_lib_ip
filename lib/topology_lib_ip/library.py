@@ -183,16 +183,46 @@ def add_link_type_vlan(enode, portlbl, name, vlan_id, shell=None):
      Node default shell.
     :type shell: str or None
     """
+    assert name
     if name in enode.ports:
         raise ValueError("Key {key} already exists".format(key=name))
 
-    enode.ports[name] = portlbl
+    assert portlbl
+    assert vlan_id
+    port = enode.ports[portlbl]
+    enode.ports[name] = name
 
     cmd = 'ip link add link {dev} name {name} type vlan id {vlan_id}'.format(
-        dev=portlbl, name=name, vlan_id=vlan_id)
+        dev=port, name=name, vlan_id=vlan_id)
 
     response = enode(cmd, shell=shell)
     assert not response
+
+
+def remove_link_type_vlan(enode, name, shell=None):
+    """
+    Delete a virtual link.
+    Deletes a vlan device with the name {name}.
+    Will raise an expection if the port is not already present.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str name: specifies the name of the new
+     virtual device.
+    :param shell: Shell name to execute commands. If ``None``, use the Engine
+     Node default shell.
+    :type shell: str or None
+    """
+    assert name
+    if name not in enode.ports.values():
+        raise ValueError("Key {key} doesn't exists".format(key=name))
+
+    cmd = 'ip link del link dev {name}'.format(name=name)
+
+    response = enode(cmd, shell=shell)
+    assert not response, "Cannot remove a physical link"
+
+    del enode.ports[name]
 
 
 __all__ = [
@@ -200,5 +230,6 @@ __all__ = [
     'remove_ip',
     'add_route',
     'add_link_type_vlan',
+    'remove_link_type_vlan',
     'sub_interface'
 ]
