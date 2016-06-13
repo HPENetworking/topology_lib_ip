@@ -11,6 +11,38 @@ Documentation
     https://github.com/HPENetworking/topology_lib_ip/tree/master/doc
 
 
+Changelog
+=========
+
+0.2.0
+-----
+
+**Changes**
+
+- Updated developer guide to reflect Python 3 development and to not use pip
+  from system repositories (as it is too old).
+
+**New**
+
+- Added function ``remove_link_type_vlan`` that allows to remove vlan
+  virtual links created with ``add_link_type_vlan``.
+
+**Fixes**
+
+- Fixed issue in ``add_link_type_vlan`` that ignored the ports mapping of the
+  node.
+- Fixed issue in ``add_link_type_vlan`` that registered the port mapping before
+  creating it, causing potential issue if the creation failed.
+
+
+0.1.0
+-----
+
+**New**
+
+- Initial release.
+
+
 License
 =======
 
