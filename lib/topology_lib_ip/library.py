@@ -169,60 +169,34 @@ def add_route(enode, route, via, shell=None):
 def add_link_type_vlan(enode, portlbl, name, vlan_id, shell=None):
     """
     Add a new virtual link with the type set to VLAN.
-    Creates a new vlan device {name} on device {portlbl}.
+
+    Creates a new vlan device {name} on device {port}.
     Will raise an exception if value is already assigned.
 
     :param enode: Engine node to communicate with.
     :type enode: topology.platforms.base.BaseNode
     :param str portlbl: Port label to configure. Port label will be mapped
      automatically.
-    :param str name: specifies the name of the new
-     virtual device.
+    :param str name: specifies the name of the new virtual device.
     :param str vlan_id: specifies the VLAN identifier.
-    :param shell: Shell name to execute commands. If ``None``, use the Engine
-     Node default shell.
-    :type shell: str or None
+    :param str shell: Shell name to execute commands. If ``None``, use the
+     Engine Node default shell.
     """
     assert name
     if name in enode.ports:
-        raise ValueError("Key {key} already exists".format(key=name))
+        raise ValueError('Port {name} already exists'.format(name=name))
 
     assert portlbl
     assert vlan_id
     port = enode.ports[portlbl]
-    enode.ports[name] = name
 
     cmd = 'ip link add link {dev} name {name} type vlan id {vlan_id}'.format(
         dev=port, name=name, vlan_id=vlan_id)
 
     response = enode(cmd, shell=shell)
-    assert not response
+    assert not response, 'Cannot add virtual link {name}'.format(name)
 
-
-def remove_link_type_vlan(enode, name, shell=None):
-    """
-    Delete a virtual link.
-    Deletes a vlan device with the name {name}.
-    Will raise an expection if the port is not already present.
-
-    :param enode: Engine node to communicate with.
-    :type enode: topology.platforms.base.BaseNode
-    :param str name: specifies the name of the new
-     virtual device.
-    :param shell: Shell name to execute commands. If ``None``, use the Engine
-     Node default shell.
-    :type shell: str or None
-    """
-    assert name
-    if name not in enode.ports.values():
-        raise ValueError("Key {key} doesn't exists".format(key=name))
-
-    cmd = 'ip link del link dev {name}'.format(name=name)
-
-    response = enode(cmd, shell=shell)
-    assert not response, "Cannot remove a physical link"
-
-    del enode.ports[name]
+    enode.ports[name] = name
 
 
 __all__ = [
@@ -230,6 +204,5 @@ __all__ = [
     'remove_ip',
     'add_route',
     'add_link_type_vlan',
-    'remove_link_type_vlan',
     'sub_interface'
 ]
