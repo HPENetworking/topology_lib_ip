@@ -23,6 +23,127 @@ from __future__ import unicode_literals, absolute_import
 from __future__ import print_function, division
 
 from ipaddress import ip_address, ip_network, ip_interface
+from re import search
+from re import match
+from re import DOTALL
+
+
+def _parse_ip_addr_show(raw_result):
+    """
+    Parse the 'ip addr list dev' command raw output.
+
+    :param str raw_result: os raw result string.
+    :rtype: dict
+    :return: The parsed result of the show interface command in a \
+        dictionary of the form:
+
+     ::
+
+        {
+            'os_index' : '0',
+            'dev' : 'eth0',
+            'falgs_str': 'BROADCAST,MULTICAST,UP,LOWER_UP',
+            'mtu': 1500,
+            'state': 'down',
+            'link_type' 'ether',
+            'mac_address': '00:50:56:01:2e:f6',
+            'inet': '20.1.1.2',
+            'inet_mask': '24',
+            'inet6': 'fe80::42:acff:fe11:2',
+            'inte6_mask': '64'
+        }
+    """
+    # does link exist?
+    show_re = (
+        r'"(?P<dev>\S+)"\s+does not exist'
+    )
+    re_result = search(show_re, raw_result)
+    result = None
+
+    if not (re_result):
+        # match top two lines for serveral 'always there' variables
+        show_re = (
+            r'\s*(?P<os_index>\d+):\s+(?P<dev>\w+):\s+<(?P<falgs_str>.*)?>.*?'
+            r'mtu\s+(?P<mtu>\d+).+?state\s+(?P<state>\w+).*'
+            r'\s*link/(?P<link_type>\w+)\s+(?P<mac_address>\S+)'
+        )
+
+        re_result = search(show_re, raw_result, DOTALL)
+        result = re_result.groupdict()
+
+        # seek inet if its there
+        show_re = (
+                r'((inet )\s*(?P<inet>[^/]+)/(?P<inet_mask>\d{1,2}))'
+            )
+        re_result = search(show_re, raw_result)
+        if (re_result):
+            result.update(re_result.groupdict())
+
+        # seek inet6 if its there
+        show_re = (
+                r'((?<=inet6 )(?P<inet6>[^/]+)/(?P<inet6_mask>\d{1,2}))'
+            )
+        re_result = search(show_re, raw_result)
+        if (re_result):
+            result.update(re_result.groupdict())
+
+        # cleanup dictionary before returning
+        for key, value in result.items():
+            if value is not None:
+                if value.isdigit():
+                    result[key] = int(value)
+
+    return result
+
+
+def _parse_ip_stats_link_show(raw_result):
+    """
+    Parse the 'ip -s link show dev <dev>' command raw output.
+
+    :param str raw_result: vtysh raw result string.
+    :rtype: dict
+    :return: The parsed result of the show interface command in a \
+        dictionary of the form:
+
+     ::
+
+        {
+            'rx_bytes': 0,
+            'rx_packets': 0,
+            'rx_errors': 0,
+            'rx_dropped': 0,
+            'rx_overrun': 0,
+            'rx_mcast': 0,
+            'tx_bytes': 0,
+            'tx_packets': 0,
+            'tx_errors': 0,
+            'tx_dropped': 0,
+            'tx_carrier': 0,
+            'tx_collisions': 0,
+
+        }
+    """
+
+    show_re = (
+        r'.+?RX:.*?\n'
+        r'\s*(?P<rx_bytes>\d+)\s+(?P<rx_packets>\d+)\s+(?P<rx_errors>\d+)\s+'
+        r'(?P<rx_dropped>\d+)\s+(?P<rx_overrun>\d+)\s+(?P<rx_mcast>\d+)'
+        r'.+?TX:.*?\n'
+        r'\s*(?P<tx_bytes>\d+)\s+(?P<tx_packets>\d+)\s+(?P<tx_errors>\d+)\s+'
+        r'(?P<tx_dropped>\d+)\s+(?P<tx_carrier>\d+)\s+(?P<tx_collisions>\d+)'
+    )
+
+    re_result = match(show_re, raw_result, DOTALL)
+    result = None
+
+    if (re_result):
+        result = re_result.groupdict()
+        for key, value in result.items():
+            if value is not None:
+                if value.isdigit():
+                    result[key] = int(value)
+
+    return result
 
 
 def interface(enode, portlbl, addr=None, up=None, shell=None):
@@ -225,11 +346,42 @@ def remove_link_type_vlan(enode, name, shell=None):
     del enode.ports[name]
 
 
+def show_interface(enode, dev, shell=None):
+    """
+    Show the configured parameters and stats of an interface.
+
+    :param enode: Engine node to communicate with.
+    :type enode: topology.platforms.base.BaseNode
+    :param str dev: Unix network device name. Ex 1, 2, 3..
+    :rtype: dict
+    :return: A combined dictionary as returned by both
+     :func:`topology_lib_ip.parser._parse_ip_addr_show`
+     :func:`topology_lib_ip.parser._parse_ip_stats_link_show`
+    """
+    assert dev
+
+    cmd = 'ip addr list dev {ldev}'.format(ldev=dev)
+    response = enode(cmd, shell=shell)
+
+    first_half_dict = _parse_ip_addr_show(response)
+
+    d = None
+    if (first_half_dict):
+        cmd = 'ip -s link list dev {ldev}'.format(ldev=dev)
+        response = enode(cmd, shell=shell)
+        second_half_dict = _parse_ip_stats_link_show(response)
+
+        d = first_half_dict.copy()
+        d.update(second_half_dict)
+    return d
+
+
 __all__ = [
     'interface',
     'remove_ip',
     'add_route',
     'add_link_type_vlan',
     'remove_link_type_vlan',
-    'sub_interface'
+    'sub_interface',
+    'show_interface'
 ]
