@@ -63,7 +63,7 @@ def _parse_ip_addr_show(raw_result):
     if not (re_result):
         # match top two lines for serveral 'always there' variables
         show_re = (
-            r'\s*(?P<os_index>\d+):\s+(?P<dev>\w+):\s+<(?P<falgs_str>.*)?>.*?'
+            r'\s*(?P<os_index>\d+):\s+(?P<dev>\S+):\s+<(?P<falgs_str>.*)?>.*?'
             r'mtu\s+(?P<mtu>\d+).+?state\s+(?P<state>\w+).*'
             r'\s*link/(?P<link_type>\w+)\s+(?P<mac_address>\S+)'
         )
